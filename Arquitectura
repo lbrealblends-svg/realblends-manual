@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual Real Blends · Klery</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #FAFAF8; color: #2C2C2A; padding: 1.5rem 1rem; }
+    .node-btn { cursor: pointer; transition: opacity .15s; }
+    .node-btn:hover { opacity: .82; }
+    .detail-panel { display: none; padding: 1.25rem; border: 0.5px solid #D3D1C7; border-radius: 12px; background: #fff; margin-top: 1rem; }
+    .detail-panel.visible { display: block; }
+    .panel-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; padding-bottom: .75rem; border-bottom: 0.5px solid #D3D1C7; }
+    .panel-badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+    .panel-title { font-size: 16px; font-weight: 500; color: #2C2C2A; margin: 0; }
+    .panel-desc { font-size: 13px; color: #888780; margin: 4px 0 0; }
+    .section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: #B4B2A9; margin: 1rem 0 .5rem; }
+    .row-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 7px 0; border-bottom: 0.5px solid #D3D1C7; font-size: 13px; gap: 12px; }
+    .row-item:last-child { border-bottom: none; }
+    .row-label { color: #888780; flex-shrink: 0; min-width: 140px; }
+    .row-val { color: #2C2C2A; text-align: right; }
+    .pill { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; display: inline-block; }
+    .pill-teal   { background: #E1F5EE; color: #085041; }
+    .pill-blue   { background: #E6F1FB; color: #0C447C; }
+    .pill-amber  { background: #FAEEDA; color: #633806; }
+    .pill-purple { background: #EEEDFE; color: #26215C; }
+    .pill-green  { background: #EAF3DE; color: #27500A; }
+    .pill-pink   { background: #FBEAF0; color: #72243E; }
+    .pill-gray   { background: #F1EFE8; color: #444441; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: .5rem; }
+    .steps { display: flex; flex-direction: column; gap: 6px; }
+    .step { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; padding: 6px 0; border-bottom: 0.5px solid #D3D1C7; }
+    .step:last-child { border-bottom: none; }
+    .step-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; margin-top: 1px; }
+    .step-text { color: #2C2C2A; line-height: 1.55; }
+    .step-sub { color: #888780; font-size: 11px; margin-top: 2px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: .5rem; }
+    .mini-card { background: #F1EFE8; border-radius: 8px; padding: .75rem; font-size: 12px; }
+    .mini-card-label { color: #888780; font-size: 11px; margin-bottom: 3px; }
+    .mini-card-val { color: #2C2C2A; font-weight: 500; }
+    .hint-close { font-size: 12px; color: #B4B2A9; margin-top: 1rem; cursor: pointer; text-align: right; display: none; }
+    .hint-close:hover { color: #888780; }
+    .arch-hint { font-size: 12px; color: #B4B2A9; text-align: center; margin-bottom: .5rem; }
+    h1 { font-size: 18px; font-weight: 600; color: #2C2C2A; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #888780; margin-bottom: 1.25rem; }
+  </style>
+</head>
+<body>
+
+<h1>Manual de implementación · Real Blends</h1>
+<p class="subtitle">Agente IA Omnicanal · Klery Agency · Abril 2026 · Toca cada bloque para ver el detalle</p>
+
+<p class="arch-hint">Toca cualquier bloque del diagrama para desplegar su documentación</p>
+
+<svg id="arch-svg" width="100%" viewBox="0 0 680 480" style="cursor:default; display:block;">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#B4B2A9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <text font-family="Arial,sans-serif" font-size="11" fill="#888780" x="340" y="18" text-anchor="middle">Canales de entrada</text>
+
+  <g class="node-btn" id="btn-canales" onclick="show('canales')">
+    <rect x="30"  y="26" width="100" height="36" rx="7" fill="#E1F5EE" stroke="#1D9E75" stroke-width="0.5"/>
+    <text font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#085041" x="80"  y="49" text-anchor="middle">WhatsApp</text>
+    <rect x="142" y="26" width="100" height="36" rx="7" fill="#FBEAF0" stroke="#D4537E" stroke-width="0.5"/>
+    <text font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#72243E" x="192" y="49" text-anchor="middle">Instagram</text>
+    <rect x="254" y="26" width="100" height="36" rx="7" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.5"/>
+    <text font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#0C447C" x="304" y="49" text-anchor="middle">Facebook</text>
+    <rect x="366" y="26" width="110" height="36" rx="7" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/>
+    <text font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#633806" x="421" y="49" text-anchor="middle">Tienda Klery</text>
+    <rect x="488" y="26" width="100" height="36" rx="7" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+    <text font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#444441" x="538" y="49" text-anchor="middle">Llamadas</text>
+  </g>
+
+  <line x1="80"  y1="62" x2="290" y2="102" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+  <line x1="192" y1="62" x2="308" y2="102" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+  <line x1="304" y1="62" x2="340" y2="102" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+  <line x1="421" y1="62" x2="372" y2="102" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+  <line x1="538" y1="62" x2="390" y2="102" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+
+  <g class="node-btn" id="btn-agente" onclick="show('agente')">
+    <rect x="170" y="104" width="340" height="46" rx="9" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+    <text font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#26215C" x="340" y="122" text-anchor="middle">Agente IA Central · Klery</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#534AB7" x="340" y="140" text-anchor="middle">Workflows + AI Bot + Conversations</text>
+  </g>
+
+  <line x1="340" y1="150" x2="340" y2="170" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+
+  <g class="node-btn" id="btn-crm" onclick="show('crm')">
+    <rect x="210" y="172" width="260" height="40" rx="7" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+    <text font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#2C2C2A" x="340" y="188" text-anchor="middle">Clasificador + CRM</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#5F5E5A" x="340" y="204" text-anchor="middle">Nuevo · Habitual · Distribuidor · Frio</text>
+  </g>
+
+  <line x1="340" y1="212" x2="340" y2="228" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+
+  <g class="node-btn" id="btn-e1" onclick="show('e1')">
+    <rect x="20" y="230" width="148" height="58" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="0.8"/>
+    <text font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#085041" x="94" y="252" text-anchor="middle">Etapa 1</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#0F6E56" x="94" y="267" text-anchor="middle">Omnicanalidad</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#0F6E56" x="94" y="281" text-anchor="middle">$2.300.000 · 20h</text>
+  </g>
+
+  <g class="node-btn" id="btn-e2" onclick="show('e2')">
+    <rect x="180" y="230" width="148" height="58" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.8"/>
+    <text font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#0C447C" x="254" y="252" text-anchor="middle">Etapa 2</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#185FA5" x="254" y="267" text-anchor="middle">Agente de ventas</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#185FA5" x="254" y="281" text-anchor="middle">$2.990.000 · 26h</text>
+  </g>
+
+  <g class="node-btn" id="btn-e3" onclick="show('e3')">
+    <rect x="340" y="230" width="148" height="58" rx="8" fill="#FBEAF0" stroke="#D4537E" stroke-width="0.8"/>
+    <text font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#72243E" x="414" y="252" text-anchor="middle">Etapa 3</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#993556" x="414" y="267" text-anchor="middle">Servicio al cliente</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#993556" x="414" y="281" text-anchor="middle">$1.035.000 · 9h</text>
+  </g>
+
+  <g class="node-btn" id="btn-e4" onclick="show('e4')">
+    <rect x="500" y="230" width="148" height="58" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.8"/>
+    <text font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#633806" x="574" y="252" text-anchor="middle">Etapa 4</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#854F0B" x="574" y="267" text-anchor="middle">Fidelizacion</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#854F0B" x="574" y="281" text-anchor="middle">$2.185.000 · 19h</text>
+  </g>
+
+  <line x1="168" y1="259" x2="178" y2="259" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+  <line x1="328" y1="259" x2="338" y2="259" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+  <line x1="488" y1="259" x2="498" y2="259" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+
+  <g class="node-btn" id="btn-pipeline" onclick="show('pipeline')">
+    <rect x="20" y="320" width="295" height="48" rx="8" fill="#EAF3DE" stroke="#639922" stroke-width="0.8"/>
+    <text font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#27500A" x="167" y="340" text-anchor="middle">Pipeline de ventas</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#3B6D11" x="167" y="358" text-anchor="middle">7 etapas · Movimiento automatico</text>
+  </g>
+
+  <g class="node-btn" id="btn-pos" onclick="show('pos')">
+    <rect x="327" y="320" width="321" height="48" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+    <text font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#26215C" x="487" y="340" text-anchor="middle">Posventa + fidelizacion</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#534AB7" x="487" y="358" text-anchor="middle">Encuesta · Reposicion · Rescate · VIP</text>
+  </g>
+
+  <line x1="94"  y1="288" x2="94"  y2="318" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+  <line x1="254" y1="288" x2="220" y2="318" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+  <line x1="414" y1="288" x2="414" y2="318" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+  <line x1="574" y1="288" x2="530" y2="318" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+
+  <g class="node-btn" id="btn-klery" onclick="show('klery')">
+    <rect x="100" y="396" width="480" height="44" rx="9" fill="#F1EFE8" stroke="#888780" stroke-width="0.8"/>
+    <text font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#2C2C2A" x="340" y="414" text-anchor="middle">Klery Agency · Subcuenta Real Blends</text>
+    <text font-family="Arial,sans-serif" font-size="10" fill="#5F5E5A" x="340" y="432" text-anchor="middle">Control centralizado · Seguridad · Escalabilidad</text>
+  </g>
+
+  <line x1="167" y1="368" x2="280" y2="394" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+  <line x1="487" y1="368" x2="400" y2="394" stroke="#D3D1C7" stroke-width="0.7" marker-end="url(#arr)"/>
+
+  <text font-family="Arial,sans-serif" font-size="10" fill="#B4B2A9" x="340" y="468" text-anchor="middle">Toca cualquier bloque para ver el detalle</text>
+</svg>
+
+<!-- PANELS -->
+
+<div id="p-canales" class="detail-panel">
+  <div class="panel-header">
+    <span class="panel-badge pill-teal">Canales</span>
+    <div><p class="panel-title">Canales de entrada</p><p class="panel-desc">Todo mensaje llega al mismo Agente IA en Klery, sin importar el canal</p></div>
+  </div>
+  <p class="section-label">Estado actual</p>
+  <div class="steps">
+    <div class="step"><div class="step-num" style="background:#E1F5EE;color:#085041;">1</div><div><div class="step-text">WhatsApp Business via GoGHL</div><div class="step-sub">Activo — número conectado y operativo</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FBEAF0;color:#72243E;">2</div><div><div class="step-text">Instagram DM</div><div class="step-sub">En proceso de conexión vía Meta Business Suite</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E6F1FB;color:#0C447C;">3</div><div><div class="step-text">Facebook Messenger</div><div class="step-sub">En proceso — misma integración que Instagram</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FAEEDA;color:#633806;">4</div><div><div class="step-text">Tienda Klery</div><div class="step-sub">Activa — reemplaza Shopify, genera eventos de carrito abandonado</div></div></div>
+    <div class="step"><div class="step-num" style="background:#F1EFE8;color:#444441;">5</div><div><div class="step-text">Llamadas outbound</div><div class="step-sub">Solo para confirmaciones críticas — Klery Phone</div></div></div>
+  </div>
+  <p class="section-label">Dónde se configura en Klery</p>
+  <div class="row-item"><span class="row-label">WhatsApp</span><span class="row-val">Settings → Integrations → WhatsApp</span></div>
+  <div class="row-item"><span class="row-label">Instagram / Facebook</span><span class="row-val">Settings → Integrations → Facebook</span></div>
+  <div class="row-item"><span class="row-label">Tienda</span><span class="row-val">Funnels & Websites → E-commerce</span></div>
+</div>
+
+<div id="p-agente" class="detail-panel">
+  <div class="panel-header">
+    <span class="panel-badge pill-purple">IA central</span>
+    <div><p class="panel-title">Agente IA Central · Klery</p><p class="panel-desc">El cerebro del sistema. Opera 24/7 sin intervención humana para casos estándar</p></div>
+  </div>
+  <p class="section-label">Componentes en Klery</p>
+  <div class="grid2">
+    <div class="mini-card"><div class="mini-card-label">Workflows</div><div class="mini-card-val">Automation → Workflows</div></div>
+    <div class="mini-card"><div class="mini-card-label">AI Bot</div><div class="mini-card-val">Conversations → AI Agent</div></div>
+    <div class="mini-card"><div class="mini-card-label">Bandeja unificada</div><div class="mini-card-val">Conversations → Inbox</div></div>
+    <div class="mini-card"><div class="mini-card-label">Enrutamiento</div><div class="mini-card-val">Trigger: "hablar con asesor"</div></div>
+  </div>
+  <p class="section-label">Lógica de operación</p>
+  <div class="row-item"><span class="row-label">IA responde</span><span class="row-val">FAQ, pedidos, cotizaciones, estatus</span></div>
+  <div class="row-item"><span class="row-label">Escala a humano</span><span class="row-val">Cuando cliente lo pide o IA no resuelve</span></div>
+  <div class="row-item"><span class="row-label">Disponibilidad</span><span class="row-val">24/7 — respuesta inmediata</span></div>
+  <div class="row-item"><span class="row-label">Idioma</span><span class="row-val">Español colombiano · tono cercano</span></div>
+</div>
+
+<div id="p-crm" class="detail-panel">
+  <div class="panel-header">
+    <span class="panel-badge pill-gray">CRM</span>
+    <div><p class="panel-title">Clasificador + CRM</p><p class="panel-desc">Cada contacto entra clasificado y con su tarjeta creada automáticamente</p></div>
+  </div>
+  <p class="section-label">Campos nativos (automáticos)</p>
+  <div class="row-item"><span class="row-label">Nombre completo</span><span class="pill pill-green">Auto</span></div>
+  <div class="row-item"><span class="row-label">Teléfono WhatsApp</span><span class="pill pill-green">Auto</span></div>
+  <div class="row-item"><span class="row-label">Canal de origen</span><span class="pill pill-green">Auto</span></div>
+  <div class="row-item"><span class="row-label">Email</span><span class="pill pill-amber">Bot recolecta</span></div>
+  <p class="section-label">Custom Fields · Settings → Custom Fields</p>
+  <div class="row-item"><span class="row-label">Ciudad</span><span class="row-val">Text — define costo de envío</span></div>
+  <div class="row-item"><span class="row-label">Nombre del negocio</span><span class="row-val">Text</span></div>
+  <div class="row-item"><span class="row-label">Tipo de cliente</span><span class="row-val">Dropdown: Nuevo / Habitual / Distribuidor / Frío</span></div>
+  <div class="row-item"><span class="row-label">Tiene máquina</span><span class="row-val">Checkbox</span></div>
+  <div class="row-item"><span class="row-label">Método de pago pref.</span><span class="row-val">Dropdown: Nequi / Bancolombia / Daviplata / Wompi</span></div>
+  <div class="row-item"><span class="row-label">Último pedido</span><span class="row-val">Date — auto por workflow</span></div>
+  <p class="section-label">Tags automáticos</p>
+  <div class="tag-row">
+    <span class="pill pill-teal">nuevo-whatsapp</span>
+    <span class="pill pill-teal">habitual</span>
+    <span class="pill pill-pink">distribuidor</span>
+    <span class="pill pill-gray">frio</span>
+    <span class="pill pill-amber">carrito-abandonado</span>
+    <span class="pill pill-amber">maquina-alquiler</span>
+    <span class="pill pill-purple">vip</span>
+  </div>
+</div>
+
+<div id="p-e1" class="detail-panel">
+  <div class="panel-header">
+    <span class="panel-badge pill-teal">Etapa 1 · 20h · $2.300.000</span>
+    <div><p class="panel-title">Configuración base y omnicanalidad</p><p class="panel-desc">Fundación del sistema — todo lo demás depende de esta etapa</p></div>
+  </div>
+  <p class="section-label">Entregables</p>
+  <div class="steps">
+    <div class="step"><div class="step-num" style="background:#E1F5EE;color:#085041;">1</div><div><div class="step-text">Activación del agente en WhatsApp, Instagram, Facebook, Tienda y Llamadas</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E1F5EE;color:#085041;">2</div><div><div class="step-text">CRM configurado con todos los Custom Fields de Real Blends</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E1F5EE;color:#085041;">3</div><div><div class="step-text">Clasificación automática de leads al entrar</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E1F5EE;color:#085041;">4</div><div><div class="step-text">Bandeja unificada operativa en Klery Conversations</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E1F5EE;color:#085041;">5</div><div><div class="step-text">Enrutamiento inteligente a agente humano cuando aplique</div></div></div>
+  </div>
+  <p class="section-label">Financiero</p>
+  <div class="grid2">
+    <div class="mini-card"><div class="mini-card-label">Horas</div><div class="mini-card-val">20h (16h impl. + 4h mapeo)</div></div>
+    <div class="mini-card"><div class="mini-card-label">Valor</div><div class="mini-card-val">$2.300.000</div></div>
+    <div class="mini-card"><div class="mini-card-label">Pago al inicio</div><div class="mini-card-val">$1.150.000</div></div>
+    <div class="mini-card"><div class="mini-card-label">Pago al entregar</div><div class="mini-card-val">$1.150.000</div></div>
+  </div>
+</div>
+
+<div id="p-e2" class="detail-panel">
+  <div class="panel-header">
+    <span class="panel-badge pill-blue">Etapa 2 · 26h · $2.990.000</span>
+    <div><p class="panel-title">Agente IA de ventas</p><p class="panel-desc">El bot toma pedidos completos sin intervención humana para casos estándar</p></div>
+  </div>
+  <p class="section-label">Capacidades del agente</p>
+  <div class="steps">
+    <div class="step"><div class="step-num" style="background:#E6F1FB;color:#0C447C;">1</div><div><div class="step-text">FAQ automático: productos, precios, sabores, uso, horarios, ubicación</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E6F1FB;color:#0C447C;">2</div><div><div class="step-text">Toma de pedido completa: sabor, cantidad, presentación, con/sin licor</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E6F1FB;color:#0C447C;">3</div><div><div class="step-text">Confirmación de envío — Cali $15k · área $25k · nacional transportadora</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E6F1FB;color:#0C447C;">4</div><div><div class="step-text">Confirmación de pago: Nequi, Bancolombia, Daviplata, Wompi</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E6F1FB;color:#0C447C;">5</div><div><div class="step-text">Modificación de pedidos: sabor, cantidad, dirección, receptor</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E6F1FB;color:#0C447C;">6</div><div><div class="step-text">Cotizaciones automáticas generadas y enviadas por WhatsApp</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E6F1FB;color:#0C447C;">7</div><div><div class="step-text">Plan rescate carrito abandonado con beneficio especial</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E6F1FB;color:#0C447C;">8</div><div><div class="step-text">Recordatorio de pago si no confirma en el tiempo establecido</div></div></div>
+  </div>
+  <p class="section-label">Financiero</p>
+  <div class="grid2">
+    <div class="mini-card"><div class="mini-card-label">Horas</div><div class="mini-card-val">26h (20h impl. + 6h mapeo)</div></div>
+    <div class="mini-card"><div class="mini-card-label">Valor</div><div class="mini-card-val">$2.990.000</div></div>
+    <div class="mini-card"><div class="mini-card-label">Pago al inicio</div><div class="mini-card-val">$1.495.000</div></div>
+    <div class="mini-card"><div class="mini-card-label">Pago al entregar</div><div class="mini-card-val">$1.495.000</div></div>
+  </div>
+</div>
+
+<div id="p-e3" class="detail-panel">
+  <div class="panel-header">
+    <span class="panel-badge pill-pink">Etapa 3 · 9h · $1.035.000</span>
+    <div><p class="panel-title">Servicio al cliente y posventa</p><p class="panel-desc">El agente resuelve PQRSF y activa encuestas y seguimiento automático</p></div>
+  </div>
+  <p class="section-label">Entregables</p>
+  <div class="steps">
+    <div class="step"><div class="step-num" style="background:#FBEAF0;color:#72243E;">1</div><div><div class="step-text">Recepción y respuesta automática de PQRSF</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FBEAF0;color:#72243E;">2</div><div><div class="step-text">Escalamiento a humano cuando el cliente lo solicita o la IA no resuelve</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FBEAF0;color:#72243E;">3</div><div><div class="step-text">Encuesta NPS automática post-entrega — 5 preguntas</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FBEAF0;color:#72243E;">4</div><div><div class="step-text">Plan rescate primera compra: seguimiento 24-48h después de la entrega</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FBEAF0;color:#72243E;">5</div><div><div class="step-text">Plan rescate clientes fríos: reactivación sin vender de inmediato</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FBEAF0;color:#72243E;">6</div><div><div class="step-text">Historial de interacciones visible en tarjeta CRM por contacto</div></div></div>
+  </div>
+  <p class="section-label">Financiero</p>
+  <div class="grid2">
+    <div class="mini-card"><div class="mini-card-label">Horas</div><div class="mini-card-val">9h (7h impl. + 2h mapeo)</div></div>
+    <div class="mini-card"><div class="mini-card-label">Valor</div><div class="mini-card-val">$1.035.000</div></div>
+    <div class="mini-card"><div class="mini-card-label">Pago al inicio</div><div class="mini-card-val">$517.500</div></div>
+    <div class="mini-card"><div class="mini-card-label">Pago al entregar</div><div class="mini-card-val">$517.500</div></div>
+  </div>
+</div>
+
+<div id="p-e4" class="detail-panel">
+  <div class="panel-header">
+    <span class="panel-badge pill-amber">Etapa 4 · 19h · $2.185.000</span>
+    <div><p class="panel-title">Fidelización, marketing e indicadores</p><p class="panel-desc">Campañas automáticas, recompra inteligente y panel de control completo</p></div>
+  </div>
+  <p class="section-label">Entregables</p>
+  <div class="steps">
+    <div class="step"><div class="step-num" style="background:#FAEEDA;color:#633806;">1</div><div><div class="step-text">Campañas masivas segmentadas por WhatsApp o email por tag</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FAEEDA;color:#633806;">2</div><div><div class="step-text">Recordatorio de reposición automático cada 8 días para habituales</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FAEEDA;color:#633806;">3</div><div><div class="step-text">Recomendación inteligente de productos basada en historial</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FAEEDA;color:#633806;">4</div><div><div class="step-text">Agendamiento automático de asesorías y eventos exclusivos Real Blends</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FAEEDA;color:#633806;">5</div><div><div class="step-text">Panel de indicadores: ventas, conversión, top clientes, métodos de pago</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FAEEDA;color:#633806;">6</div><div><div class="step-text">Seguridad del agente: protección de datos y prevención de sabotaje</div></div></div>
+  </div>
+  <p class="section-label">Financiero</p>
+  <div class="grid2">
+    <div class="mini-card"><div class="mini-card-label">Horas</div><div class="mini-card-val">19h (15h impl. + 4h mapeo)</div></div>
+    <div class="mini-card"><div class="mini-card-label">Valor</div><div class="mini-card-val">$2.185.000</div></div>
+    <div class="mini-card"><div class="mini-card-label">Pago al inicio</div><div class="mini-card-val">$1.092.500</div></div>
+    <div class="mini-card"><div class="mini-card-label">Pago al entregar</div><div class="mini-card-val">$1.092.500</div></div>
+  </div>
+</div>
+
+<div id="p-pipeline" class="detail-panel">
+  <div class="panel-header">
+    <span class="panel-badge pill-green">Pipeline</span>
+    <div><p class="panel-title">Pipeline de ventas · 7 etapas</p><p class="panel-desc">El contacto se mueve automáticamente por triggers de workflow</p></div>
+  </div>
+  <p class="section-label">Etapas y trigger de movimiento</p>
+  <div class="steps">
+    <div class="step"><div class="step-num" style="background:#F1EFE8;color:#444441;">1</div><div><div class="step-text">Nuevo contacto</div><div class="step-sub">Trigger: primer mensaje entrante por cualquier canal</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E6F1FB;color:#0C447C;">2</div><div><div class="step-text">Contactado</div><div class="step-sub">Trigger: bot envió saludo y catálogo</div></div></div>
+    <div class="step"><div class="step-num" style="background:#EEEDFE;color:#26215C;">3</div><div><div class="step-text">En negociación</div><div class="step-sub">Trigger: cliente mostró intención de compra</div></div></div>
+    <div class="step"><div class="step-num" style="background:#FAEEDA;color:#633806;">4</div><div><div class="step-text">Pedido en proceso</div><div class="step-sub">Trigger: cliente confirmó "quiero comprar"</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E1F5EE;color:#085041;">5</div><div><div class="step-text">Pago confirmado</div><div class="step-sub">Trigger: confirmación de pago recibida</div></div></div>
+    <div class="step"><div class="step-num" style="background:#E1F5EE;color:#085041;">6</div><div><div class="step-text">Despachado</div><div class="step-sub">Trigger: pedido sale de bodega, guía generada</div></div></div>
+    <div class="step"><div class="step-num" style="background:#EAF3DE;color:#27500A;">7</div><div><div class="step-text">Cerrado ganado</div><div class="step-sub">Trigger: entrega confirmada, activa posventa automática</div></div></div>
+  </div>
+  <p class="section-label">Configuración en Klery</p>
+  <div class="row-item"><span class="row-label">Mover etapa</span><span class="row-val">Workflow → Add Action → Move Opportunity Stage</span></div>
+  <div class="row-item"><span class="row-label">Ver pipeline</span><span class="row-val">CRM → Pipelines → Real Blends Ventas</span></div>
+</div>
+
+<div id="p-pos" class="detail-panel">
+  <div class="panel-header">
+    <span class="panel-badge pill-purple">Posventa</span>
+    <div><p class="panel-title">Posventa + fidelización</p><p class="panel-desc">Se activa automáticamente cuando el pipeline llega a "Cerrado ganado"</p></div>
+  </div>
+  <p class="section-label">Flujo automático post-venta</p>
+  <div class="steps">
+    <div class="step"><div class="step-num" style="background:#EEEDFE;color:#26215C;">1</div><div><div class="step-text">Encuesta NPS pocas horas después de la entrega</div><div class="step-sub">5 preguntas · calificación + comentario opcional</div></div></div>
+    <div class="step"><div class="step-num" style="background:#EEEDFE;color:#26215C;">2</div><div><div class="step-text">Seguimiento 24-48h para primera compra</div><div class="step-sub">"¿Cómo te fue?" + beneficio en próximo pedido</div></div></div>
+    <div class="step"><div class="step-num" style="background:#EEEDFE;color:#26215C;">3</div><div><div class="step-text">Recordatorio de reposición día 8</div><div class="step-sub">Solo habituales — workflow con trigger de fecha</div></div></div>
+    <div class="step"><div class="step-num" style="background:#EEEDFE;color:#26215C;">4</div><div><div class="step-text">Check VIP automático</div><div class="step-sub">Si compras acumuladas ≥ $3.200.000 → tag vip + descuento 6.5%</div></div></div>
+    <div class="step"><div class="step-num" style="background:#EEEDFE;color:#26215C;">5</div><div><div class="step-text">Plan rescate si no hay recompra en día 21</div><div class="step-sub">Mensaje de reactivación sin presión de venta</div></div></div>
+  </div>
+</div>
+
+<div id="p-klery" class="detail-panel">
+  <div class="panel-header">
+    <span class="panel-badge pill-gray">Agencia</span>
+    <div><p class="panel-title">Klery Agency · Subcuenta Real Blends</p><p class="panel-desc">Real Blends opera como subcuenta — el cliente no ve la plataforma</p></div>
+  </div>
+  <p class="section-label">Estructura</p>
+  <div class="row-item"><span class="row-label">Cuenta maestra</span><span class="row-val">Klery Agency</span></div>
+  <div class="row-item"><span class="row-label">Subcuenta</span><span class="row-val">Real Blends</span></div>
+  <div class="row-item"><span class="row-label">Acceso cliente</span><span class="row-val">Ninguno — experiencia bajo marca Klery</span></div>
+  <div class="row-item"><span class="row-label">Hora adicional</span><span class="row-val">$110.000 / hora fuera del alcance</span></div>
+  <p class="section-label">Resumen financiero total</p>
+  <div class="grid2">
+    <div class="mini-card"><div class="mini-card-label">Total horas</div><div class="mini-card-val">74 horas</div></div>
+    <div class="mini-card"><div class="mini-card-label">Inversión total</div><div class="mini-card-val">$8.510.000</div></div>
+    <div class="mini-card"><div class="mini-card-label">Forma de pago</div><div class="mini-card-val">50% inicio · 50% entrega</div></div>
+    <div class="mini-card"><div class="mini-card-label">Etapas</div><div class="mini-card-val">4 etapas secuenciales</div></div>
+  </div>
+</div>
+
+<p class="hint-close" id="hint-close" onclick="closeAll()">↑ cerrar detalle</p>
+
+<script>
+const panels = ['canales','agente','crm','e1','e2','e3','e4','pipeline','pos','klery'];
+let current = null;
+function show(id) {
+  panels.forEach(p => { var el = document.getElementById('p-'+p); if(el) el.classList.remove('visible'); });
+  if (current === id) { current = null; document.getElementById('hint-close').style.display='none'; return; }
+  current = id;
+  var panel = document.getElementById('p-'+id);
+  if (panel) { panel.classList.add('visible'); panel.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  document.getElementById('hint-close').style.display='block';
+}
+function closeAll() {
+  panels.forEach(p => { var el = document.getElementById('p-'+p); if(el) el.classList.remove('visible'); });
+  current = null;
+  document.getElementById('hint-close').style.display='none';
+}
+</script>
+
+</body>
+</html>
